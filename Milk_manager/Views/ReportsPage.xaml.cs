@@ -48,23 +48,25 @@ public partial class ReportsPage : ContentPage
 
         if (_currentReport is null)
         {
-            await DisplayAlert("Экспорт", "Нет данных для экспорта", "OK");
+            await DisplayAlertAsync("Экспорт", "Нет данных для экспорта", "OK");
             return;
         }
 
         var filePath = await _exportService.ExportReportCsvAsync(_currentReport);
-        await DisplayAlert("Экспорт готов", $"CSV отчет сохранен:\n{filePath}", "OK");
+        await DisplayAlertAsync("Экспорт готов", $"CSV отчет сохранен:\n{filePath}", "OK");
     }
 
     private async Task LoadReportsAsync()
     {
-        if (FromDatePicker.Date > ToDatePicker.Date)
+        var fromDate = FromDatePicker.Date.GetValueOrDefault(DateTime.Today);
+        var toDate = ToDatePicker.Date.GetValueOrDefault(DateTime.Today);
+        if (fromDate > toDate)
         {
-            await DisplayAlert("Период", "Дата начала не может быть позже даты окончания", "OK");
+            await DisplayAlertAsync("Период", "Дата начала не может быть позже даты окончания", "OK");
             return;
         }
 
-        _currentReport = await DatabaseService.Instance.GetReportDataAsync(FromDatePicker.Date, ToDatePicker.Date);
+        _currentReport = await DatabaseService.Instance.GetReportDataAsync(fromDate, toDate);
         DailyReportView.ItemsSource = _currentReport.Days;
         ClientReportView.ItemsSource = _currentReport.Clients;
         FactoryReportView.ItemsSource = _currentReport.Factories;
@@ -75,7 +77,7 @@ public partial class ReportsPage : ContentPage
     {
         var today = DateTime.Today;
         FromDatePicker.Date = new DateTime(today.Year, today.Month, 1);
-        ToDatePicker.Date = FromDatePicker.Date.AddMonths(1).AddDays(-1);
+        ToDatePicker.Date = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1);
     }
 
     private void UpdateTotals(ReportData report)

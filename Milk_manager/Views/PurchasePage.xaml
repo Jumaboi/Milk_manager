@@ -5,18 +5,38 @@
              Title="Прием молока"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="🥛 Прием молока" Style="{StaticResource Headline}" />
-        </Border>
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
+                <Label Text="🥛 Прием молока" Style="{StaticResource Headline}" />
+            </Border>
 
-        <Picker Title="Посёлок" ItemsSource="{Binding Villages}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedVillage}" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-            <Picker Grid.Column="0" Title="Клиент" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClient}" />
-            <Button Grid.Column="1" Text="+ Клиент" Command="{Binding AddClientCommand}" />
-        </Grid>
-        <Entry Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
-        <Entry Placeholder="Цена за литр" Text="{Binding Price}" Keyboard="Numeric" />
-        <Button Text="Сохранить приём" Command="{Binding SavePurchaseCommand}" />
-    </VerticalStackLayout>
+            <Picker Title="Фильтр по посёлку" ItemsSource="{Binding Villages}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedVillage}" />
+
+            <Label Text="Кликните по клиенту — его цена подставится ниже" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Clients}"
+                            SelectedItem="{Binding SelectedClient, Mode=TwoWay}"
+                            SelectionMode="Single"
+                            HeightRequest="320">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding FullName}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Phone, StringFormat='Телефон: {0}'}" FontSize="12" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Выберите, затем укажите литры/цену" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="+ Клиент" Command="{Binding AddClientCommand}" />
+            <Entry Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
+            <Entry Placeholder="Цена за литр" Text="{Binding Price}" Keyboard="Numeric" />
+            <Label Text="{Binding CurrentTotal, StringFormat='Общая сумма: {0}'}" FontAttributes="Bold" />
+            <Button Text="Сохранить приём" Command="{Binding SavePurchaseCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
