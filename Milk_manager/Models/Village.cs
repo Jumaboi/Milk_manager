@@ -3,5 +3,5 @@
 public class Village
 {
     public int Id { get; set; }
-    public string Name { get; set; } // Например: "Нижний Поселок", "Горный"
+    public string Name { get; set; } = string.Empty; // Например: "Нижний Поселок", "Горный"
 }

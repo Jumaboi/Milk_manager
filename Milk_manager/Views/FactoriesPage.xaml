@@ -7,9 +7,27 @@
 
     <VerticalStackLayout Padding="16" Spacing="12">
         <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="3ED Заводы" Style="{StaticResource Headline}" />
+            <Label Text="🏭 Заводы" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Список и управление заводами здесь" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <CollectionView x:Name="FactoriesCollection" SelectionMode="Single" HeightRequest="320">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="10" CornerRadius="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                            <Label Text="{Binding Phone}" FontSize="12" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+            <Button Grid.Row="0" Grid.Column="0" Text="Добавить" Clicked="OnAddFactoryClicked" />
+            <Button Grid.Row="0" Grid.Column="1" Text="Изменить" Clicked="OnEditFactoryClicked" />
+            <Button Grid.Row="1" Grid.Column="0" Text="Удалить" Clicked="OnDeleteFactoryClicked" BackgroundColor="{StaticResource Magenta}" TextColor="{StaticResource White}" />
+            <Button Grid.Row="1" Grid.Column="1" Text="Обновить" Clicked="OnRefreshFactoriesClicked" />
+        </Grid>
     </VerticalStackLayout>
 </ContentPage>

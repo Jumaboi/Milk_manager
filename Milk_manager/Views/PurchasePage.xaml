@@ -7,9 +7,13 @@
 
     <VerticalStackLayout Padding="16" Spacing="12">
         <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="37B Прием молока" Style="{StaticResource Headline}" />
+            <Label Text="🥛 Прием молока" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Форма приёма молока будет здесь" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Picker Title="Посёлок" ItemsSource="{Binding Villages}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedVillage}" />
+        <Picker Title="Клиент" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClient}" />
+        <Entry Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
+        <Entry Placeholder="Цена за литр" Text="{Binding Price}" Keyboard="Numeric" />
+        <Button Text="Сохранить приём" Command="{Binding SavePurchaseCommand}" />
     </VerticalStackLayout>
 </ContentPage>

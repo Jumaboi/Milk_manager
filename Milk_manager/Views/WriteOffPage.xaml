@@ -10,6 +10,8 @@
             <Label Text="⚠️ Списание молока" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Форма списания и причины" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Entry x:Name="LitersEntry" Placeholder="Литры" Keyboard="Numeric" />
+        <Entry x:Name="ReasonEntry" Placeholder="Причина списания" />
+        <Button Text="Создать списание" Clicked="OnCreateWriteOffClicked" />
     </VerticalStackLayout>
 </ContentPage>

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Milk_manager.Services;
 
-namespace Milk_manager.Services
+internal class ExportService
 {
-    internal class ExportService
-    {
-    }
 }

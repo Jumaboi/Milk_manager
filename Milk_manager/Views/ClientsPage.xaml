@@ -10,22 +10,29 @@
             <Label Text="👥 Клиенты" Style="{StaticResource Headline}" />
         </Border>
 
-        <CollectionView ItemsSource="{Binding Clients}" SelectionMode="Single" HeightRequest="400">
+        <CollectionView ItemsSource="{Binding Clients}"
+                        SelectedItem="{Binding SelectedClient, Mode=TwoWay}"
+                        SelectionMode="Single"
+                        HeightRequest="380">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Padding="10" CornerRadius="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
                         <VerticalStackLayout>
                             <Label Text="{Binding FullName}" FontAttributes="Bold" />
                             <Label Text="{Binding Phone}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                            <Label Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" FontSize="12" />
                         </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <HorizontalStackLayout Spacing="10">
-            <Button Text="Добавить" Command="{Binding AddCommand}" />
-            <Button Text="Обновить" Command="{Binding LoadCommand}" />
-        </HorizontalStackLayout>
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+            <Button Grid.Row="0" Grid.Column="0" Text="Добавить" Command="{Binding AddCommand}" />
+            <Button Grid.Row="0" Grid.Column="1" Text="Изменить" Command="{Binding EditCommand}" />
+            <Button Grid.Row="1" Grid.Column="0" Text="Позвонить" Command="{Binding CallCommand}" />
+            <Button Grid.Row="1" Grid.Column="1" Text="Удалить" Command="{Binding DeleteCommand}" BackgroundColor="{StaticResource Magenta}" TextColor="{StaticResource White}" />
+            <Button Grid.Row="2" Grid.ColumnSpan="2" Text="Обновить" Command="{Binding LoadCommand}" />
+        </Grid>
     </VerticalStackLayout>
 </ContentPage>
