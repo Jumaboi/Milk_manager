@@ -64,3 +64,10 @@ public partial class PaymentsPage : ContentPage
         SelectedPhoneLabel.Text = $"Телефон: {(_selectedClient is null || string.IsNullOrWhiteSpace(_selectedClient.Phone) ? "Без телефона" : _selectedClient.Phone)}";
     }
 }
+
+public record PaymentEntryViewModel(string ClientName, string Phone, decimal Amount, string Comment)
+{
+    public string PhoneDisplay => string.IsNullOrWhiteSpace(Phone) ? "Без телефона" : Phone;
+
+    public string CommentDisplay => string.IsNullOrWhiteSpace(Comment) ? "Без комментария" : Comment;
+}

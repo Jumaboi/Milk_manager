@@ -239,3 +239,11 @@ public class PurchaseViewModel : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
+
+
+public record PurchaseEntryViewModel(string ClientName, string Phone, double Liters, decimal PricePerLiter)
+{
+    public decimal TotalSum => (decimal)Liters * PricePerLiter;
+
+    public string PhoneDisplay => string.IsNullOrWhiteSpace(Phone) ? "Без телефона" : Phone;
+}

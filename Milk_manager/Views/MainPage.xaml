@@ -44,14 +44,15 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Клиенты -->
-                <Border Grid.Row="0" Grid.Column="0" Padding="12"
+                <Border Grid.Row="0" Grid.Column="0" Padding="10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}">
-                    <Button Text="👥 Клиенты\n(Сдатчики)"
+                    <Button Text="👥 Клиенты (Сдатчики)"
                             Clicked="OnClientsButtonClicked"
                             BackgroundColor="Transparent"
                             TextColor="{StaticResource White}"
                             FontAttributes="Bold"
                             FontSize="16"
+                            LineBreakMode="WordWrap"
                             VerticalOptions="Center" />
                 </Border>
 
@@ -70,44 +71,48 @@
                 <!-- Прием молока -->
                 <Border Grid.Row="1" Grid.Column="0" Padding="12"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray600}}">
-                    <Button Text="🥛 Прием\nмолока"
+                    <Button Text="🥛 Прием молока"
                             Clicked="OnPurchaseButtonClicked"
                             BackgroundColor="Transparent"
                             TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
                             FontAttributes="Bold"
+                            LineBreakMode="WordWrap"
                             FontSize="16" />
                 </Border>
 
                 <!-- Доставка -->
                 <Border Grid.Row="1" Grid.Column="1" Padding="12"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource Gray500}}">
-                    <Button Text="🚚 Сдача\nна завод"
+                    <Button Text="🚚 Сдача на завод"
                             Clicked="OnDeliveryButtonClicked"
                             BackgroundColor="Transparent"
                             TextColor="{StaticResource White}"
                             FontAttributes="Bold"
+                            LineBreakMode="WordWrap"
                             FontSize="16" />
                 </Border>
 
                 <!-- Выплаты -->
                 <Border Grid.Row="2" Grid.Column="0" Padding="12"
                         BackgroundColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource Gray900}}">
-                    <Button Text="💰 Выплаты\n(Касса)"
+                    <Button Text="💰 Выплаты (Касса)"
                             Clicked="OnPaymentsButtonClicked"
                             BackgroundColor="Transparent"
                             TextColor="{StaticResource White}"
                             FontAttributes="Bold"
+                            LineBreakMode="WordWrap"
                             FontSize="15" />
                 </Border>
 
                 <!-- Списание -->
                 <Border Grid.Row="2" Grid.Column="1" Padding="12"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource Gray600}}">
-                    <Button Text="⚠️ Списание\n(Порча)"
+                    <Button Text="⚠️ Списание (Порча)"
                             Clicked="OnWriteOffButtonClicked"
                             BackgroundColor="Transparent"
                             TextColor="{StaticResource White}"
                             FontAttributes="Bold"
+                            LineBreakMode="WordWrap"
                             FontSize="15" />
                 </Border>
 
