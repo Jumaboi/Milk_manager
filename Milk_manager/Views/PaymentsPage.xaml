@@ -7,7 +7,7 @@
 
     <VerticalStackLayout Padding="16" Spacing="12">
         <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="4B0 Выплаты" Style="{StaticResource Headline}" />
+            <Label Text="💰 Выплаты" Style="{StaticResource Headline}" />
         </Border>
 
         <Label Text="Управление выплатами" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />

@@ -7,7 +7,7 @@
 
     <VerticalStackLayout Padding="16" Spacing="12">
         <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="69A Сдача на завод" Style="{StaticResource Headline}" />
+            <Label Text="🚚 Сдача на завод" Style="{StaticResource Headline}" />
         </Border>
 
         <Label Text="Страница отправки на завод — шаблон" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />

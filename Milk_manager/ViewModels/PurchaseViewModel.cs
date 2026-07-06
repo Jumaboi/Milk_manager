@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Milk_manager.Models;
@@ -10,47 +11,57 @@ namespace Milk_manager.ViewModels;
 public class PurchaseViewModel : INotifyPropertyChanged
 {
     private readonly DatabaseService _dbService;
+    private Client? _selectedClient;
+    private Village? _selectedVillage;
+    private string _liters = string.Empty;
+    private string _price = string.Empty;
 
     // Списки, которые динамически обновляются на экране телефона
-    public ObservableCollection<Village> Villages { get; set; } = new();
-    public ObservableCollection<Client> Clients { get; set; } = new();
+    public ObservableCollection<Village> Villages { get; } = new();
+    public ObservableCollection<Client> Clients { get; } = new();
 
-    private Village _selectedVillage;
-    public Village SelectedVillage
+    public Village? SelectedVillage
     {
         get => _selectedVillage;
         set
         {
+            if (_selectedVillage == value)
+            {
+                return;
+            }
+
             _selectedVillage = value;
             OnPropertyChanged();
-            LoadClientsAsync(); // Перезагрузить клиентов при смене поселка
+            _ = LoadClientsAsync(); // Перезагрузить клиентов при смене поселка
         }
     }
 
-    private Client _selectedClient;
-    public Client SelectedClient
+    public Client? SelectedClient
     {
         get => _selectedClient;
         set
         {
+            if (_selectedClient == value)
+            {
+                return;
+            }
+
             _selectedClient = value;
             OnPropertyChanged();
-            if (_selectedClient != null)
+            if (_selectedClient is not null)
             {
                 // Подставляем персональную цену клиента по умолчанию
-                Price = _selectedClient.DefaultPrice.ToString("F2");
+                Price = _selectedClient.DefaultPrice.ToString("F2", CultureInfo.CurrentCulture);
             }
         }
     }
 
-    private string _liters;
     public string Liters
     {
         get => _liters;
         set { _liters = value; OnPropertyChanged(); }
     }
 
-    private string _price;
     public string Price
     {
         get => _price;
@@ -63,35 +74,45 @@ public class PurchaseViewModel : INotifyPropertyChanged
     {
         _dbService = dbService;
         SavePurchaseCommand = new Command(async () => await SavePurchaseAsync());
-        LoadVillagesAsync();
+        _ = LoadVillagesAsync();
     }
 
-    private async void LoadVillagesAsync()
+    private async Task LoadVillagesAsync()
     {
         var list = await _dbService.GetVillagesAsync();
         Villages.Clear();
-        foreach (var v in list) Villages.Add(v);
+        foreach (var village in list)
+        {
+            Villages.Add(village);
+        }
     }
 
-    private async void LoadClientsAsync()
+    private async Task LoadClientsAsync()
     {
         Clients.Clear();
-        if (SelectedVillage == null) return;
+        if (SelectedVillage is null)
+        {
+            return;
+        }
 
         var list = await _dbService.GetClientsByVillageAsync(SelectedVillage.Id);
-        foreach (var c in list) Clients.Add(c);
+        foreach (var client in list)
+        {
+            Clients.Add(client);
+        }
     }
 
     private async Task SavePurchaseAsync()
     {
         // Проверка на пустые поля перед записью
-        if (SelectedClient == null || string.IsNullOrWhiteSpace(Liters) || string.IsNullOrWhiteSpace(Price))
+        if (SelectedClient is null || string.IsNullOrWhiteSpace(Liters) || string.IsNullOrWhiteSpace(Price))
         {
             await Shell.Current.DisplayAlert("Внимание", "Пожалуйста, заполните все поля ввода!", "OK");
             return;
         }
 
-        if (!double.TryParse(Liters, out double litersValue) || !decimal.TryParse(Price, out decimal priceValue))
+        if (!double.TryParse(Liters, NumberStyles.Float, CultureInfo.CurrentCulture, out var litersValue) ||
+            !decimal.TryParse(Price, NumberStyles.Number, CultureInfo.CurrentCulture, out var priceValue))
         {
             await Shell.Current.DisplayAlert("Ошибка", "Неверный формат чисел в литрах или цене!", "OK");
             return;
@@ -105,7 +126,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
             PricePerLiter = priceValue
         };
 
-        // Сохраняем в локальную SQLite
+        // Сохраняем в локальную LiteDB
         await _dbService.AddPurchaseAsync(purchase);
 
         // Очищаем поле литров для следующего ввода
@@ -114,7 +135,8 @@ public class PurchaseViewModel : INotifyPropertyChanged
         await Shell.Current.DisplayAlert("Успешно", $"Принято {litersValue} л. от {SelectedClient.FullName}", "OK");
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
