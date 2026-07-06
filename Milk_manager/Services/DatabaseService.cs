@@ -8,6 +8,7 @@ using Milk_manager.Models;
 
 namespace Milk_manager.Services
 {
+
     public class DatabaseService
     {
         private readonly LiteDatabase _db;
