@@ -19,12 +19,12 @@ public partial class PaymentsPage : ContentPage
 
     private async void OnCreatePaymentClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Выплаты", "Создание выплаты", "OK");
+        await DisplayAlertAsync("Выплаты", "Создание выплаты", "OK");
 
         if (ClientPicker.SelectedItem is not Client client ||
             !decimal.TryParse(AmountEntry.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var amount))
         {
-            await DisplayAlert("Ошибка", "Выберите клиента и укажите корректную сумму", "OK");
+            await DisplayAlertAsync("Ошибка", "Выберите клиента и укажите корректную сумму", "OK");
             return;
         }
 
@@ -38,6 +38,6 @@ public partial class PaymentsPage : ContentPage
 
         AmountEntry.Text = string.Empty;
         CommentEntry.Text = string.Empty;
-        await DisplayAlert("Готово", $"Выплата для {client.FullName} создана", "OK");
+        await DisplayAlertAsync("Готово", $"Выплата для {client.FullName} создана", "OK");
     }
 }
