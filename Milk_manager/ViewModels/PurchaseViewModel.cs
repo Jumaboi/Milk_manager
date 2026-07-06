@@ -69,11 +69,13 @@ public class PurchaseViewModel : INotifyPropertyChanged
     }
 
     public ICommand SavePurchaseCommand { get; }
+    public ICommand AddClientCommand { get; }
 
     public PurchaseViewModel(DatabaseService dbService)
     {
         _dbService = dbService;
         SavePurchaseCommand = new Command(async () => await SavePurchaseAsync());
+        AddClientCommand = new Command(async () => await AddClientAsync());
         _ = LoadVillagesAsync();
     }
 
@@ -100,6 +102,48 @@ public class PurchaseViewModel : INotifyPropertyChanged
         {
             Clients.Add(client);
         }
+    }
+
+    private async Task AddClientAsync()
+    {
+        var fullName = await Shell.Current.DisplayPromptAsync("Новый клиент", "Введите ФИО клиента:");
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return;
+        }
+
+        var villageInitial = SelectedVillage?.Name ?? string.Empty;
+        var villageName = await Shell.Current.DisplayPromptAsync(
+            "Новый клиент",
+            "Введите поселок. Если не указать, будет создан 'Без поселка':",
+            initialValue: villageInitial);
+        var phone = await Shell.Current.DisplayPromptAsync("Новый клиент", "Введите телефон клиента:", initialValue: "+7");
+        var priceText = await Shell.Current.DisplayPromptAsync(
+            "Новый клиент",
+            "Введите цену за литр:",
+            initialValue: string.IsNullOrWhiteSpace(Price) ? "4,50" : Price,
+            keyboard: Keyboard.Numeric);
+
+        if (!decimal.TryParse(priceText, NumberStyles.Number, CultureInfo.CurrentCulture, out var price))
+        {
+            price = 4.50m;
+        }
+
+        var village = await _dbService.GetOrCreateVillageAsync(villageName ?? string.Empty);
+        var client = new Client
+        {
+            FullName = fullName.Trim(),
+            VillageId = village.Id,
+            Phone = phone?.Trim() ?? string.Empty,
+            DefaultPrice = price
+        };
+
+        await _dbService.AddClientAsync(client);
+        await LoadVillagesAsync();
+        SelectedVillage = Villages.FirstOrDefault(item => item.Id == village.Id);
+        await LoadClientsAsync();
+        SelectedClient = Clients.FirstOrDefault(item => item.Id == client.Id);
+        await Shell.Current.DisplayAlert("Готово", $"Клиент {client.FullName} добавлен и выбран", "OK");
     }
 
     private async Task SavePurchaseAsync()
