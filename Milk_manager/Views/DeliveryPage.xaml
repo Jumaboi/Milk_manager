@@ -34,6 +34,25 @@
             <Entry x:Name="PriceEntry" Placeholder="Цена за литр" Keyboard="Numeric" TextChanged="OnAmountTextChanged" />
             <Label x:Name="TotalLabel" Text="Общая сумма: 0,00" FontAttributes="Bold" />
             <Button Text="Создать сдачу" Clicked="OnCreateDeliveryClicked" />
+
+            <Label Text="Сдано сегодня" FontAttributes="Bold" />
+            <CollectionView x:Name="DeliveriesCollection" HeightRequest="150">
+                <CollectionView.EmptyView>
+                    <Label Text="Пока нет сдач" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,0,6" Padding="8" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding FactoryName}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalSum, StringFormat='{0:F2}'}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Liters, StringFormat='Литры: {0:F1}'}" FontSize="12" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding PricePerLiter, StringFormat='Цена за литр: {0:F2}'}" FontSize="12" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

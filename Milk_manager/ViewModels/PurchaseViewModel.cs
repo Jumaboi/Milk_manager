@@ -19,7 +19,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
     // Списки, которые динамически обновляются на экране телефона
     public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<Client> Clients { get; } = new();
-    public ObservableCollection<PurchaseEntryViewModel> CurrentPurchases { get; } = new();
+    public ObservableCollection<PurchaseEntryRow> CurrentPurchases { get; } = new();
 
     public Village? SelectedVillage
     {
@@ -109,6 +109,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
         AddClientCommand = new Command(async () => await AddClientAsync());
         _ = LoadVillagesAsync();
         _ = LoadClientsAsync();
+        _ = LoadCurrentPurchasesAsync();
     }
 
     private async Task LoadVillagesAsync()
@@ -130,6 +131,16 @@ public class PurchaseViewModel : INotifyPropertyChanged
         foreach (var client in list)
         {
             Clients.Add(client);
+        }
+    }
+
+    private async Task LoadCurrentPurchasesAsync()
+    {
+        CurrentPurchases.Clear();
+        var rows = await _dbService.GetPurchaseEntriesForDayAsync(DateTime.Today);
+        foreach (var row in rows)
+        {
+            CurrentPurchases.Add(row);
         }
     }
 
@@ -211,7 +222,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
             SelectedClient = Clients.FirstOrDefault(client => client.Id == selectedClientId);
         }
 
-        CurrentPurchases.Insert(0, new PurchaseEntryViewModel(
+        CurrentPurchases.Insert(0, new PurchaseEntryRow(
             SelectedClient.FullName,
             SelectedClient.Phone,
             litersValue,

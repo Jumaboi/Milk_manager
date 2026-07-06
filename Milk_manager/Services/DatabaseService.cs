@@ -243,6 +243,88 @@ public class DatabaseService
         });
     }
 
+    public Task<List<PurchaseEntryRow>> GetPurchaseEntriesForDayAsync(DateTime date)
+    {
+        return Task.Run(() =>
+        {
+            var from = date.Date;
+            var to = from.AddDays(1).AddTicks(-1);
+            var clientsById = _clients.FindAll().ToDictionary(client => client.Id);
+            return _purchases.Find(purchase => purchase.Date >= from && purchase.Date <= to)
+                .OrderByDescending(purchase => purchase.Date)
+                .Select(purchase =>
+                {
+                    clientsById.TryGetValue(purchase.ClientId, out var client);
+                    return new PurchaseEntryRow(
+                        client?.FullName ?? $"Клиент #{purchase.ClientId}",
+                        client?.Phone ?? string.Empty,
+                        purchase.Liters,
+                        purchase.PricePerLiter);
+                })
+                .ToList();
+        });
+    }
+
+    public Task<List<PaymentEntryRow>> GetPaymentEntriesForDayAsync(DateTime date)
+    {
+        return Task.Run(() =>
+        {
+            var from = date.Date;
+            var to = from.AddDays(1).AddTicks(-1);
+            var clientsById = _clients.FindAll().ToDictionary(client => client.Id);
+            var purchasesByClient = _purchases.Find(purchase => purchase.Date >= from && purchase.Date <= to)
+                .GroupBy(purchase => purchase.ClientId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => new
+                    {
+                        Liters = group.Sum(purchase => purchase.Liters),
+                        Total = group.Sum(purchase => purchase.TotalSum)
+                    });
+
+            return _payments.Find(payment => payment.Date >= from && payment.Date <= to)
+                .OrderByDescending(payment => payment.Date)
+                .Select(payment =>
+                {
+                    clientsById.TryGetValue(payment.ClientId, out var client);
+                    purchasesByClient.TryGetValue(payment.ClientId, out var purchaseTotal);
+                    var liters = purchaseTotal?.Liters ?? 0;
+                    var milkTotal = purchaseTotal?.Total ?? 0m;
+                    var price = liters > 0 ? milkTotal / (decimal)liters : (client?.DefaultPrice ?? 0m);
+                    return new PaymentEntryRow(
+                        client?.FullName ?? $"Клиент #{payment.ClientId}",
+                        client?.Phone ?? string.Empty,
+                        payment.Amount,
+                        payment.Comment ?? string.Empty,
+                        liters,
+                        price,
+                        milkTotal);
+                })
+                .ToList();
+        });
+    }
+
+    public Task<List<DeliveryEntryRow>> GetDeliveryEntriesForDayAsync(DateTime date)
+    {
+        return Task.Run(() =>
+        {
+            var from = date.Date;
+            var to = from.AddDays(1).AddTicks(-1);
+            return _deliveries.Find(delivery => delivery.Date >= from && delivery.Date <= to)
+                .OrderByDescending(delivery => delivery.Date)
+                .Select(delivery => new DeliveryEntryRow(delivery.FactoryName, delivery.Liters, delivery.PricePerLiter))
+                .ToList();
+        });
+    }
+
+    public Task<List<WriteOffEntryRow>> GetWriteOffEntriesAsync()
+    {
+        return Task.Run(() => _writeOffs.FindAll()
+            .OrderByDescending(writeOff => writeOff.Date)
+            .Select(writeOff => new WriteOffEntryRow(writeOff.Date, writeOff.Liters, writeOff.Reason ?? string.Empty))
+            .ToList());
+    }
+
     public Task<ReportData> GetReportDataAsync(DateTime fromDate, DateTime toDate)
     {
         return Task.Run(() =>

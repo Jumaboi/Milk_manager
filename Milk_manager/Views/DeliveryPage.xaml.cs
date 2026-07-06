@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using Milk_manager.Models;
 using Milk_manager.Services;
@@ -6,15 +7,18 @@ namespace Milk_manager.Views;
 
 public partial class DeliveryPage : ContentPage
 {
+    private readonly ObservableCollection<DeliveryEntryRow> _currentDeliveries = new();
     public DeliveryPage()
     {
         InitializeComponent();
+        DeliveriesCollection.ItemsSource = _currentDeliveries;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await LoadFactoriesAsync();
+        await LoadCurrentDeliveriesAsync();
     }
 
     private async void OnCreateDeliveryClicked(object sender, EventArgs e)
@@ -41,7 +45,18 @@ public partial class DeliveryPage : ContentPage
         PriceEntry.Text = string.Empty;
         UpdateTotalLabel();
         await LoadFactoriesAsync();
+        await LoadCurrentDeliveriesAsync();
         await DisplayAlertAsync("Готово", $"Сдача на {factoryName}: {liters:F1} л., сумма {((decimal)liters * price):F2}", "OK");
+    }
+
+    private async Task LoadCurrentDeliveriesAsync()
+    {
+        _currentDeliveries.Clear();
+        var rows = await DatabaseService.Instance.GetDeliveryEntriesForDayAsync(DateTime.Today);
+        foreach (var row in rows)
+        {
+            _currentDeliveries.Add(row);
+        }
     }
 
     private async Task LoadFactoriesAsync()

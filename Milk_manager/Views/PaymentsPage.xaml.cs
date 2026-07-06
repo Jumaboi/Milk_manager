@@ -7,7 +7,7 @@ namespace Milk_manager.Views;
 
 public partial class PaymentsPage : ContentPage
 {
-    private readonly ObservableCollection<PaymentEntryViewModel> _currentPayments = new();
+    private readonly ObservableCollection<PaymentEntryRow> _currentPayments = new();
     private Client? _selectedClient;
 
     public PaymentsPage()
@@ -20,6 +20,7 @@ public partial class PaymentsPage : ContentPage
     {
         base.OnAppearing();
         ClientsCollection.ItemsSource = await DatabaseService.Instance.GetAllClientsAsync();
+        await LoadCurrentPaymentsAsync();
     }
 
     private async void OnCreatePaymentClicked(object sender, EventArgs e)
@@ -40,10 +41,20 @@ public partial class PaymentsPage : ContentPage
             Comment = comment
         });
 
-        _currentPayments.Insert(0, new PaymentEntryViewModel(client.FullName, client.Phone, amount, comment));
+        await LoadCurrentPaymentsAsync();
         AmountEntry.Text = string.Empty;
         CommentEntry.Text = string.Empty;
         await DisplayAlertAsync("Готово", $"Выплата для {client.FullName}: {amount:F2}", "OK");
+    }
+
+    private async Task LoadCurrentPaymentsAsync()
+    {
+        _currentPayments.Clear();
+        var rows = await DatabaseService.Instance.GetPaymentEntriesForDayAsync(DateTime.Today);
+        foreach (var row in rows)
+        {
+            _currentPayments.Add(row);
+        }
     }
 
     private void OnClientSelectionChanged(object sender, SelectionChangedEventArgs e)
