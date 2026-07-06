@@ -5,11 +5,97 @@
              Title="Отчёты"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="📊 Отчёты" Style="{StaticResource Headline}" />
-        </Border>
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="📊 Таблица как Excel" Style="{StaticResource Headline}" />
+                    <Label Text="Клиенты: литры, начислено, оплачено и долг. Заводы: литры и сумма сдачи." FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                </VerticalStackLayout>
+            </Border>
 
-        <Label Text="Формирование Excel/PDF отчетов" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
-    </VerticalStackLayout>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                <DatePicker x:Name="FromDatePicker" Grid.Row="0" Grid.Column="0" />
+                <DatePicker x:Name="ToDatePicker" Grid.Row="0" Grid.Column="1" />
+                <Button Grid.Row="1" Grid.Column="0" Text="Этот месяц" Clicked="OnCurrentMonthClicked" />
+                <Button Grid.Row="1" Grid.Column="1" Text="Сегодня" Clicked="OnTodayClicked" />
+                <Button Grid.Row="2" Grid.Column="0" Text="Сформировать" Clicked="OnRefreshClicked" />
+                <Button Grid.Row="2" Grid.Column="1" Text="Экспорт CSV" Clicked="OnExportClicked" />
+            </Grid>
+
+            <Border StrokeShape="RoundRectangle 10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}" Padding="10">
+                <VerticalStackLayout Spacing="3">
+                    <Label x:Name="PeriodLabel" FontAttributes="Bold" />
+                    <Label x:Name="ClientTotalsLabel" />
+                    <Label x:Name="FactoryTotalsLabel" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="📅 По дням" FontAttributes="Bold" FontSize="18" />
+            <Grid ColumnDefinitions="1.2*,*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <Label Text="Дата" FontAttributes="Bold" />
+                <Label Grid.Column="1" Text="Клиенты л." FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="Клиенты сумма" FontAttributes="Bold" />
+                <Label Grid.Column="3" Text="Заводы л." FontAttributes="Bold" />
+                <Label Grid.Column="4" Text="Заводы сумма" FontAttributes="Bold" />
+            </Grid>
+            <CollectionView x:Name="DailyReportView" HeightRequest="260">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="1.2*,*,*,*,*" Padding="6" ColumnSpacing="6">
+                            <Label Text="{Binding Date, StringFormat='{0:d}'}" />
+                            <Label Grid.Column="1" Text="{Binding ClientLiters, StringFormat='{0:F1}'}" />
+                            <Label Grid.Column="2" Text="{Binding ClientAmount, StringFormat='{0:F2}'}" />
+                            <Label Grid.Column="3" Text="{Binding FactoryLiters, StringFormat='{0:F1}'}" />
+                            <Label Grid.Column="4" Text="{Binding FactoryAmount, StringFormat='{0:F2}'}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="👥 Клиенты" FontAttributes="Bold" FontSize="18" />
+            <Grid ColumnDefinitions="1.2*,1.4*,*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <Label Text="Посёлок" FontAttributes="Bold" />
+                <Label Grid.Column="1" Text="Клиент" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="Взял л." FontAttributes="Bold" />
+                <Label Grid.Column="3" Text="За сколько" FontAttributes="Bold" />
+                <Label Grid.Column="4" Text="Оплатил" FontAttributes="Bold" />
+                <Label Grid.Column="5" Text="Должен" FontAttributes="Bold" />
+            </Grid>
+            <CollectionView x:Name="ClientReportView" HeightRequest="360">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="1.2*,1.4*,*,*,*,*" Padding="6" ColumnSpacing="6">
+                            <Label Text="{Binding VillageName}" LineBreakMode="TailTruncation" />
+                            <Label Grid.Column="1" Text="{Binding ClientName}" LineBreakMode="TailTruncation" />
+                            <Label Grid.Column="2" Text="{Binding LitersTaken, StringFormat='{0:F1}'}" />
+                            <Label Grid.Column="3" Text="{Binding TotalAmount, StringFormat='{0:F2}'}" />
+                            <Label Grid.Column="4" Text="{Binding PaidAmount, StringFormat='{0:F2}'}" />
+                            <Label Grid.Column="5" Text="{Binding DebtAmount, StringFormat='{0:F2}'}" FontAttributes="Bold" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="🏭 Заводы" FontAttributes="Bold" FontSize="18" />
+            <Grid ColumnDefinitions="2*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <Label Text="Завод" FontAttributes="Bold" />
+                <Label Grid.Column="1" Text="Сдач" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="Литры" FontAttributes="Bold" />
+                <Label Grid.Column="3" Text="Сумма" FontAttributes="Bold" />
+            </Grid>
+            <CollectionView x:Name="FactoryReportView" HeightRequest="220">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="2*,*,*,*" Padding="6" ColumnSpacing="6">
+                            <Label Text="{Binding FactoryName}" LineBreakMode="TailTruncation" />
+                            <Label Grid.Column="1" Text="{Binding DeliveriesCount}" />
+                            <Label Grid.Column="2" Text="{Binding LitersDelivered, StringFormat='{0:F1}'}" />
+                            <Label Grid.Column="3" Text="{Binding TotalAmount, StringFormat='{0:F2}'}" FontAttributes="Bold" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

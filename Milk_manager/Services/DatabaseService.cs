@@ -43,6 +43,23 @@ public class DatabaseService
         return Task.Run(() => _villages.FindAll().OrderBy(village => village.Name).ToList());
     }
 
+    public Task<Village> GetOrCreateVillageAsync(string villageName)
+    {
+        return Task.Run(() =>
+        {
+            var normalizedName = string.IsNullOrWhiteSpace(villageName) ? "Без поселка" : villageName.Trim();
+            var village = _villages.FindAll()
+                .FirstOrDefault(item => string.Equals(item.Name, normalizedName, StringComparison.CurrentCultureIgnoreCase));
+            if (village is not null)
+            {
+                return village;
+            }
+
+            village = new Village { Name = normalizedName };
+            _villages.Insert(village);
+            return village;
+        });
+    }
 
     public Task<List<Factory>> GetFactoriesAsync()
     {
@@ -144,6 +161,126 @@ public class DatabaseService
 
             _writeOffs.Insert(writeOff);
         });
+    }
+
+    public Task<ReportData> GetReportDataAsync(DateTime fromDate, DateTime toDate)
+    {
+        return Task.Run(() =>
+        {
+            var from = fromDate.Date;
+            var to = toDate.Date.AddDays(1).AddTicks(-1);
+            var villagesById = _villages.FindAll().ToDictionary(village => village.Id, village => village.Name);
+            var purchases = _purchases.Find(purchase => purchase.Date >= from && purchase.Date <= to).ToList();
+            var payments = _payments.Find(payment => payment.Date >= from && payment.Date <= to).ToList();
+            var deliveries = _deliveries.Find(delivery => delivery.Date >= from && delivery.Date <= to).ToList();
+
+            var purchasesByClient = purchases
+                .GroupBy(purchase => purchase.ClientId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => new
+                    {
+                        Liters = group.Sum(purchase => purchase.Liters),
+                        Total = group.Sum(purchase => purchase.TotalSum)
+                    });
+            var paymentsByClient = payments
+                .GroupBy(payment => payment.ClientId)
+                .ToDictionary(group => group.Key, group => group.Sum(payment => payment.Amount));
+
+            var clients = _clients.FindAll()
+                .OrderBy(client => villagesById.GetValueOrDefault(client.VillageId, "Без поселка"))
+                .ThenBy(client => client.FullName)
+                .Select(client =>
+                {
+                    purchasesByClient.TryGetValue(client.Id, out var purchaseTotal);
+                    var paid = paymentsByClient.GetValueOrDefault(client.Id);
+                    var purchased = purchaseTotal?.Total ?? 0m;
+
+                    return new ClientBalanceReportRow
+                    {
+                        ClientName = client.FullName,
+                        VillageName = villagesById.GetValueOrDefault(client.VillageId, "Без поселка"),
+                        LitersTaken = purchaseTotal?.Liters ?? 0,
+                        TotalAmount = purchased,
+                        PaidAmount = paid,
+                        DebtAmount = purchased - paid
+                    };
+                })
+                .ToList();
+
+            var factories = deliveries
+                .GroupBy(delivery => string.IsNullOrWhiteSpace(delivery.FactoryName) ? "Без названия" : delivery.FactoryName.Trim())
+                .OrderBy(group => group.Key)
+                .Select(group => new FactoryBalanceReportRow
+                {
+                    FactoryName = group.Key,
+                    LitersDelivered = group.Sum(delivery => delivery.Liters),
+                    TotalAmount = group.Sum(delivery => delivery.TotalSum),
+                    DeliveriesCount = group.Count()
+                })
+                .ToList();
+
+            var purchaseDays = purchases
+                .GroupBy(purchase => purchase.Date.Date)
+                .ToDictionary(
+                    group => group.Key,
+                    group => new
+                    {
+                        Liters = group.Sum(purchase => purchase.Liters),
+                        Total = group.Sum(purchase => purchase.TotalSum)
+                    });
+            var deliveryDays = deliveries
+                .GroupBy(delivery => delivery.Date.Date)
+                .ToDictionary(
+                    group => group.Key,
+                    group => new
+                    {
+                        Liters = group.Sum(delivery => delivery.Liters),
+                        Total = group.Sum(delivery => delivery.TotalSum)
+                    });
+            var allDays = purchaseDays.Keys
+                .Union(deliveryDays.Keys)
+                .OrderBy(day => day)
+                .Select(day => new DailyReportRow
+                {
+                    Date = day,
+                    ClientLiters = purchaseDays.GetValueOrDefault(day)?.Liters ?? 0,
+                    ClientAmount = purchaseDays.GetValueOrDefault(day)?.Total ?? 0m,
+                    FactoryLiters = deliveryDays.GetValueOrDefault(day)?.Liters ?? 0,
+                    FactoryAmount = deliveryDays.GetValueOrDefault(day)?.Total ?? 0m
+                })
+                .ToList();
+
+            return new ReportData
+            {
+                FromDate = from,
+                ToDate = toDate.Date,
+                Clients = clients,
+                Factories = factories,
+                Days = allDays,
+                Totals = new ReportTotals
+                {
+                    ClientLiters = clients.Sum(client => client.LitersTaken),
+                    ClientAmount = clients.Sum(client => client.TotalAmount),
+                    ClientPaid = clients.Sum(client => client.PaidAmount),
+                    ClientDebt = clients.Sum(client => client.DebtAmount),
+                    FactoryLiters = factories.Sum(factory => factory.LitersDelivered),
+                    FactoryAmount = factories.Sum(factory => factory.TotalAmount)
+                }
+            };
+        });
+    }
+
+    public Task<List<ClientBalanceReportRow>> GetClientBalanceReportAsync()
+    {
+        var today = DateTime.Today;
+        return GetReportDataAsync(DateTime.MinValue.Date, today).ContinueWith(task => task.Result.Clients);
+    }
+
+    public Task<List<FactoryBalanceReportRow>> GetFactoryBalanceReportAsync()
+    {
+        var today = DateTime.Today;
+        return GetReportDataAsync(DateTime.MinValue.Date, today).ContinueWith(task => task.Result.Factories);
     }
 
     private void SeedInitialData()

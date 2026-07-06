@@ -11,7 +11,10 @@
         </Border>
 
         <Picker Title="Посёлок" ItemsSource="{Binding Villages}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedVillage}" />
-        <Picker Title="Клиент" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClient}" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Picker Grid.Column="0" Title="Клиент" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClient}" />
+            <Button Grid.Column="1" Text="+ Клиент" Command="{Binding AddClientCommand}" />
+        </Grid>
         <Entry Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
         <Entry Placeholder="Цена за литр" Text="{Binding Price}" Keyboard="Numeric" />
         <Button Text="Сохранить приём" Command="{Binding SavePurchaseCommand}" />
