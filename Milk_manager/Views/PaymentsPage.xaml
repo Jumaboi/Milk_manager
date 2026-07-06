@@ -5,14 +5,63 @@
              Title="Выплаты"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
+    <Grid Padding="16" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="10">
+        <Border Grid.Row="0" StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
             <Label Text="💰 Выплаты" Style="{StaticResource Headline}" />
         </Border>
 
-        <Picker x:Name="ClientPicker" Title="Клиент" ItemDisplayBinding="{Binding FullName}" />
-        <Entry x:Name="AmountEntry" Placeholder="Сумма выплаты" Keyboard="Numeric" />
-        <Entry x:Name="CommentEntry" Placeholder="Комментарий" />
-        <Button Text="Создать выплату" Clicked="OnCreatePaymentClicked" />
-    </VerticalStackLayout>
+        <VerticalStackLayout Grid.Row="1" Spacing="2">
+            <Label Text="Все клиенты" FontAttributes="Bold" />
+            <Label Text="Нажмите клиента, затем внесите сумму выплаты" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="2"
+                        x:Name="ClientsCollection"
+                        SelectionMode="Single"
+                        SelectionChanged="OnClientSelectionChanged"
+                        HeightRequest="185">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,6" Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding FullName}" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Phone, StringFormat='Тел: {0}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="8">
+            <Border Padding="10" StrokeShape="RoundRectangle 10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="8" RowSpacing="6">
+                    <Label x:Name="SelectedClientLabel" Grid.ColumnSpan="2" Text="Клиент не выбран" FontAttributes="Bold" />
+                    <Label x:Name="SelectedPhoneLabel" Grid.Row="1" Grid.ColumnSpan="2" Text="Телефон: —" FontSize="12" />
+                    <Entry x:Name="AmountEntry" Grid.Row="2" Grid.ColumnSpan="2" Placeholder="Сумма выплаты" Keyboard="Numeric" />
+                    <Entry x:Name="CommentEntry" Grid.Row="3" Grid.Column="0" Placeholder="Комментарий" />
+                    <Button Grid.Row="3" Grid.Column="1" Text="Сохранить" Clicked="OnCreatePaymentClicked" Padding="16,8" />
+                </Grid>
+            </Border>
+
+            <Label Text="Выплачено сейчас" FontAttributes="Bold" />
+            <CollectionView x:Name="PaymentsCollection" HeightRequest="150">
+                <CollectionView.EmptyView>
+                    <Label Text="Пока нет выплат" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,0,6" Padding="8" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClientName}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Amount, StringFormat='{0:F2}'}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PhoneDisplay, StringFormat='Тел: {0}'}" FontSize="12" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding CommentDisplay}" FontSize="12" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>
