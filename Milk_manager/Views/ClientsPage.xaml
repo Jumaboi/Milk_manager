@@ -16,13 +16,13 @@
                         HeightRequest="380">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="10" CornerRadius="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                    <Border Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
                         <VerticalStackLayout>
                             <Label Text="{Binding FullName}" FontAttributes="Bold" />
                             <Label Text="{Binding Phone}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
                             <Label Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" FontSize="12" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

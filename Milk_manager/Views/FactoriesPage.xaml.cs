@@ -18,7 +18,7 @@ public partial class FactoriesPage : ContentPage
 
     private async void OnAddFactoryClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Заводы", "Создание завода", "OK");
+        await DisplayAlertAsync("Заводы", "Создание завода", "OK");
         var name = await DisplayPromptAsync("Новый завод", "Название завода:");
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -28,18 +28,18 @@ public partial class FactoriesPage : ContentPage
         var phone = await DisplayPromptAsync("Новый завод", "Телефон завода:", initialValue: "+7");
         await DatabaseService.Instance.AddFactoryAsync(new Factory { Name = name.Trim(), Phone = phone?.Trim() ?? string.Empty });
         await LoadFactoriesAsync();
-        await DisplayAlert("Готово", "Завод создан", "OK");
+        await DisplayAlertAsync("Готово", "Завод создан", "OK");
     }
 
     private async void OnEditFactoryClicked(object sender, EventArgs e)
     {
         if (!TryGetSelectedFactory(out var factory))
         {
-            await DisplayAlert("Заводы", "Выберите завод для изменения", "OK");
+            await DisplayAlertAsync("Заводы", "Выберите завод для изменения", "OK");
             return;
         }
 
-        await DisplayAlert("Заводы", "Изменение завода", "OK");
+        await DisplayAlertAsync("Заводы", "Изменение завода", "OK");
         var name = await DisplayPromptAsync("Изменить завод", "Название завода:", initialValue: factory.Name);
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -51,33 +51,33 @@ public partial class FactoriesPage : ContentPage
         factory.Phone = phone?.Trim() ?? string.Empty;
         await DatabaseService.Instance.UpdateFactoryAsync(factory);
         await LoadFactoriesAsync();
-        await DisplayAlert("Готово", "Завод изменён", "OK");
+        await DisplayAlertAsync("Готово", "Завод изменён", "OK");
     }
 
     private async void OnDeleteFactoryClicked(object sender, EventArgs e)
     {
         if (!TryGetSelectedFactory(out var factory))
         {
-            await DisplayAlert("Заводы", "Выберите завод для удаления", "OK");
+            await DisplayAlertAsync("Заводы", "Выберите завод для удаления", "OK");
             return;
         }
 
-        var confirm = await DisplayAlert("Подтверждение удаления", $"Удалить завод {factory.Name}?", "Удалить", "Отмена");
+        var confirm = await DisplayAlertAsync("Подтверждение удаления", $"Удалить завод {factory.Name}?", "Удалить", "Отмена");
         if (!confirm)
         {
-            await DisplayAlert("Отменено", "Удаление завода отменено", "OK");
+            await DisplayAlertAsync("Отменено", "Удаление завода отменено", "OK");
             return;
         }
 
         await DatabaseService.Instance.DeleteFactoryAsync(factory.Id);
         await LoadFactoriesAsync();
-        await DisplayAlert("Готово", "Завод удалён", "OK");
+        await DisplayAlertAsync("Готово", "Завод удалён", "OK");
     }
 
     private async void OnRefreshFactoriesClicked(object sender, EventArgs e)
     {
         await LoadFactoriesAsync();
-        await DisplayAlert("Заводы", "Список обновлён", "OK");
+        await DisplayAlertAsync("Заводы", "Список обновлён", "OK");
     }
 
     private async Task LoadFactoriesAsync()

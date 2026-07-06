@@ -13,11 +13,11 @@ public partial class WriteOffPage : ContentPage
 
     private async void OnCreateWriteOffClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Списание", "Создание списания молока", "OK");
+        await DisplayAlertAsync("Списание", "Создание списания молока", "OK");
 
         if (!double.TryParse(LitersEntry.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out var liters))
         {
-            await DisplayAlert("Ошибка", "Укажите корректное количество литров", "OK");
+            await DisplayAlertAsync("Ошибка", "Укажите корректное количество литров", "OK");
             return;
         }
 
@@ -30,6 +30,6 @@ public partial class WriteOffPage : ContentPage
 
         LitersEntry.Text = string.Empty;
         ReasonEntry.Text = string.Empty;
-        await DisplayAlert("Готово", "Списание создано", "OK");
+        await DisplayAlertAsync("Готово", "Списание создано", "OK");
     }
 }

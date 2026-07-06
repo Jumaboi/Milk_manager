@@ -11,29 +11,77 @@ public partial class DeliveryPage : ContentPage
         InitializeComponent();
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadFactoriesAsync();
+    }
+
     private async void OnCreateDeliveryClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Сдача", "Создание сдачи на завод", "OK");
-
         if (string.IsNullOrWhiteSpace(FactoryNameEntry.Text) ||
             !double.TryParse(LitersEntry.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out var liters) ||
             !decimal.TryParse(PriceEntry.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var price))
         {
-            await DisplayAlert("Ошибка", "Заполните завод, литры и цену корректно", "OK");
+            await DisplayAlertAsync("Ошибка", "Заполните завод, литры и цену корректно", "OK");
             return;
         }
 
+        var factoryName = FactoryNameEntry.Text.Trim();
+        await EnsureFactoryExistsAsync(factoryName);
         await DatabaseService.Instance.AddDeliveryAsync(new FactoryDelivery
         {
-            FactoryName = FactoryNameEntry.Text.Trim(),
+            FactoryName = factoryName,
             Date = DateTime.Now,
             Liters = liters,
             PricePerLiter = price
         });
 
-        FactoryNameEntry.Text = string.Empty;
         LitersEntry.Text = string.Empty;
         PriceEntry.Text = string.Empty;
-        await DisplayAlert("Готово", "Сдача на завод создана", "OK");
+        UpdateTotalLabel();
+        await LoadFactoriesAsync();
+        await DisplayAlertAsync("Готово", $"Сдача на {factoryName}: {liters:F1} л., сумма {((decimal)liters * price):F2}", "OK");
+    }
+
+    private async Task LoadFactoriesAsync()
+    {
+        FactoriesCollection.ItemsSource = await DatabaseService.Instance.GetFactoriesAsync();
+    }
+
+    private async Task EnsureFactoryExistsAsync(string factoryName)
+    {
+        var factories = await DatabaseService.Instance.GetFactoriesAsync();
+        if (factories.Any(factory => string.Equals(factory.Name, factoryName, StringComparison.CurrentCultureIgnoreCase)))
+        {
+            return;
+        }
+
+        await DatabaseService.Instance.AddFactoryAsync(new Factory { Name = factoryName });
+    }
+
+    private void OnFactorySelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is Factory factory)
+        {
+            FactoryNameEntry.Text = factory.Name;
+        }
+    }
+
+    private void OnAmountTextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdateTotalLabel();
+    }
+
+    private void UpdateTotalLabel()
+    {
+        if (double.TryParse(LitersEntry.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out var liters) &&
+            decimal.TryParse(PriceEntry.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var price))
+        {
+            TotalLabel.Text = $"Общая сумма: {((decimal)liters * price):F2}";
+            return;
+        }
+
+        TotalLabel.Text = "Общая сумма: 0,00";
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Milk_manager.Views;
+namespace Milk_manager.Views;
 
 public partial class MainPage : ContentPage
 {
@@ -58,6 +58,6 @@ public partial class MainPage : ContentPage
 
     private static Task NotifyNavigationAsync(string pageName)
     {
-        return Shell.Current.DisplayAlert("Переход", $"Открывается раздел: {pageName}", "OK");
+        return Shell.Current.DisplayAlertAsync("Переход", $"Открывается раздел: {pageName}", "OK");
     }
 }
