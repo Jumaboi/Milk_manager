@@ -10,6 +10,9 @@
             <Label Text="💰 Выплаты" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Управление выплатами" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Picker x:Name="ClientPicker" Title="Клиент" ItemDisplayBinding="{Binding FullName}" />
+        <Entry x:Name="AmountEntry" Placeholder="Сумма выплаты" Keyboard="Numeric" />
+        <Entry x:Name="CommentEntry" Placeholder="Комментарий" />
+        <Button Text="Создать выплату" Clicked="OnCreatePaymentClicked" />
     </VerticalStackLayout>
 </ContentPage>

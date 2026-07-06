@@ -10,6 +10,9 @@
             <Label Text="🚚 Сдача на завод" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Страница отправки на завод — шаблон" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Entry x:Name="FactoryNameEntry" Placeholder="Название завода" />
+        <Entry x:Name="LitersEntry" Placeholder="Литры" Keyboard="Numeric" />
+        <Entry x:Name="PriceEntry" Placeholder="Цена за литр" Keyboard="Numeric" />
+        <Button Text="Создать сдачу" Clicked="OnCreateDeliveryClicked" />
     </VerticalStackLayout>
 </ContentPage>
