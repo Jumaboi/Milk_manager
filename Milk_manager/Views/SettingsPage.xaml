@@ -10,6 +10,6 @@
             <Label Text="⚙️ Настройки" Style="{StaticResource Headline}" />
         </Border>
 
-        <Label Text="Опции приложения и тема" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Label Text="Опции приложения и тема" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
     </VerticalStackLayout>
 </ContentPage>

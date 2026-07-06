@@ -5,14 +5,35 @@
              Title="Сдача на завод"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-            <Label Text="🚚 Сдача на завод" Style="{StaticResource Headline}" />
-        </Border>
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
+                <Label Text="🚚 Сдача на завод" Style="{StaticResource Headline}" />
+            </Border>
 
-        <Entry x:Name="FactoryNameEntry" Placeholder="Название завода" />
-        <Entry x:Name="LitersEntry" Placeholder="Литры" Keyboard="Numeric" />
-        <Entry x:Name="PriceEntry" Placeholder="Цена за литр" Keyboard="Numeric" />
-        <Button Text="Создать сдачу" Clicked="OnCreateDeliveryClicked" />
-    </VerticalStackLayout>
+            <Label Text="Кликните по заводу или введите новый" FontAttributes="Bold" />
+            <CollectionView x:Name="FactoriesCollection"
+                            SelectionMode="Single"
+                            SelectionChanged="OnFactorySelectionChanged"
+                            HeightRequest="260">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                            <Grid RowDefinitions="Auto,Auto,Auto">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Text="{Binding Phone, StringFormat='Телефон: {0}'}" FontSize="12" />
+                                <Label Grid.Row="2" Text="Выберите, затем укажите литры/цену" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Entry x:Name="FactoryNameEntry" Placeholder="Название завода" />
+            <Entry x:Name="LitersEntry" Placeholder="Литры" Keyboard="Numeric" TextChanged="OnAmountTextChanged" />
+            <Entry x:Name="PriceEntry" Placeholder="Цена за литр" Keyboard="Numeric" TextChanged="OnAmountTextChanged" />
+            <Label x:Name="TotalLabel" Text="Общая сумма: 0,00" FontAttributes="Bold" />
+            <Button Text="Создать сдачу" Clicked="OnCreateDeliveryClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
