@@ -19,6 +19,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
     // Списки, которые динамически обновляются на экране телефона
     public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<Client> Clients { get; } = new();
+    public ObservableCollection<PurchaseEntryViewModel> CurrentPurchases { get; } = new();
 
     public Village? SelectedVillage
     {
@@ -48,6 +49,8 @@ public class PurchaseViewModel : INotifyPropertyChanged
 
             _selectedClient = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedClientName));
+            OnPropertyChanged(nameof(SelectedClientPhone));
             if (_selectedClient is not null)
             {
                 // Подставляем персональную цену клиента по умолчанию
@@ -92,6 +95,10 @@ public class PurchaseViewModel : INotifyPropertyChanged
         }
     }
 
+    public string SelectedClientName => SelectedClient?.FullName ?? "Клиент не выбран";
+
+    public string SelectedClientPhone => string.IsNullOrWhiteSpace(SelectedClient?.Phone) ? "Без телефона" : SelectedClient.Phone;
+
     public ICommand SavePurchaseCommand { get; }
     public ICommand AddClientCommand { get; }
 
@@ -101,6 +108,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
         SavePurchaseCommand = new Command(async () => await SavePurchaseAsync());
         AddClientCommand = new Command(async () => await AddClientAsync());
         _ = LoadVillagesAsync();
+        _ = LoadClientsAsync();
     }
 
     private async Task LoadVillagesAsync()
@@ -161,7 +169,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
 
         await _dbService.AddClientAsync(client);
         await LoadVillagesAsync();
-        SelectedVillage = Villages.FirstOrDefault(item => item.Id == village.Id);
+        SelectedVillage = null;
         await LoadClientsAsync();
         SelectedClient = Clients.FirstOrDefault(item => item.Id == client.Id);
         await Shell.Current.DisplayAlertAsync("Готово", $"Клиент {client.FullName} добавлен и выбран", "OK");
@@ -194,7 +202,13 @@ public class PurchaseViewModel : INotifyPropertyChanged
         // Сохраняем в локальную LiteDB
         await _dbService.AddPurchaseAsync(purchase);
 
-        // Очищаем поле литров для следующего ввода
+        CurrentPurchases.Insert(0, new PurchaseEntryViewModel(
+            SelectedClient.FullName,
+            SelectedClient.Phone,
+            litersValue,
+            priceValue));
+
+        // Очищаем поле литров для следующего ввода, цена выбранного клиента остается для следующей записи
         Liters = string.Empty;
 
         await Shell.Current.DisplayAlertAsync("Успешно", $"Принято {litersValue} л. от {SelectedClient.FullName}", "OK");
@@ -204,4 +218,12 @@ public class PurchaseViewModel : INotifyPropertyChanged
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+
+public record PurchaseEntryViewModel(string ClientName, string Phone, double Liters, decimal PricePerLiter)
+{
+    public decimal TotalSum => (decimal)Liters * PricePerLiter;
+
+    public string PhoneDisplay => string.IsNullOrWhiteSpace(Phone) ? "Без телефона" : Phone;
 }

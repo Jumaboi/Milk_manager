@@ -5,38 +5,70 @@
              Title="Прием молока"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
-                <Label Text="🥛 Прием молока" Style="{StaticResource Headline}" />
+    <Grid Padding="16" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="10">
+        <Border Grid.Row="0" StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" Padding="12">
+            <Label Text="🥛 Прием молока" Style="{StaticResource Headline}" />
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Все клиенты" FontAttributes="Bold" />
+                <Label Text="Нажмите клиента, затем внесите литры и цену" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1" Text="+ Клиент" Command="{Binding AddClientCommand}" Padding="12,6" />
+        </Grid>
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Clients}"
+                        SelectedItem="{Binding SelectedClient, Mode=TwoWay}"
+                        SelectionMode="Single"
+                        HeightRequest="185">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,6" Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding FullName}" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Phone, StringFormat='Тел: {0}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="8">
+            <Border Padding="10" StrokeShape="RoundRectangle 10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="8" RowSpacing="6">
+                    <Label Grid.ColumnSpan="2" Text="{Binding SelectedClientName}" FontAttributes="Bold" />
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding SelectedClientPhone, StringFormat='Телефон: {0}'}" FontSize="12" />
+                    <Entry Grid.Row="2" Grid.Column="0" Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
+                    <Entry Grid.Row="2" Grid.Column="1" Placeholder="Цена" Text="{Binding Price}" Keyboard="Numeric" />
+                </Grid>
             </Border>
 
-            <Picker Title="Фильтр по посёлку" ItemsSource="{Binding Villages}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedVillage}" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label Text="{Binding CurrentTotal, StringFormat='Общая сумма: {0}'}" FontAttributes="Bold" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="Добавить" Command="{Binding SavePurchaseCommand}" Padding="18,8" />
+            </Grid>
 
-            <Label Text="Кликните по клиенту — его цена подставится ниже" FontAttributes="Bold" />
-            <CollectionView ItemsSource="{Binding Clients}"
-                            SelectedItem="{Binding SelectedClient, Mode=TwoWay}"
-                            SelectionMode="Single"
-                            HeightRequest="320">
+            <Label Text="Добавлено сейчас" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding CurrentPurchases}" HeightRequest="150">
+                <CollectionView.EmptyView>
+                    <Label Text="Пока нет записей" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="10" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Border Margin="0,0,0,6" Padding="8" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
-                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding FullName}" FontAttributes="Bold" />
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding DefaultPrice, StringFormat='Цена: {0:F2}'}" />
-                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Phone, StringFormat='Телефон: {0}'}" FontSize="12" />
-                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Выберите, затем укажите литры/цену" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClientName}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalSum, StringFormat='{0:F2}'}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PhoneDisplay, StringFormat='Тел: {0}'}" FontSize="12" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Liters, StringFormat='Литры: {0:F1}'}" FontSize="12" />
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <Button Text="+ Клиент" Command="{Binding AddClientCommand}" />
-            <Entry Placeholder="Литры" Text="{Binding Liters}" Keyboard="Numeric" />
-            <Entry Placeholder="Цена за литр" Text="{Binding Price}" Keyboard="Numeric" />
-            <Label Text="{Binding CurrentTotal, StringFormat='Общая сумма: {0}'}" FontAttributes="Bold" />
-            <Button Text="Сохранить приём" Command="{Binding SavePurchaseCommand}" />
         </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 </ContentPage>
