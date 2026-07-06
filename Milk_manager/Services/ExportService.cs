@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 using Milk_manager.Models;
 
@@ -66,6 +66,11 @@ public class ExportService
         }
 
         await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
+        DeveloperActionLogService.Log(
+            "Report.ExportCsv",
+            $"Экспортирован CSV отчет за период {reportData.FromDate:d} — {reportData.ToDate:d}: {filePath}.",
+            after: new { FilePath = filePath, reportData.Totals },
+            rollbackHint: $"Удалить файл отчета: {filePath}.");
         return filePath;
     }
 

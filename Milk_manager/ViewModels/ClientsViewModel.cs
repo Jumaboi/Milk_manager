@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -54,7 +54,7 @@ public class ClientsViewModel : INotifyPropertyChanged
 
     private async Task AddClientAsync()
     {
-        await Shell.Current.DisplayAlert("Клиенты", "Открыто создание клиента", "OK");
+        await Shell.Current.DisplayAlertAsync("Клиенты", "Открыто создание клиента", "OK");
 
         var fullName = await Shell.Current.DisplayPromptAsync("Новый клиент", "Введите ФИО клиента:");
         if (string.IsNullOrWhiteSpace(fullName))
@@ -79,7 +79,7 @@ public class ClientsViewModel : INotifyPropertyChanged
 
         await DatabaseService.Instance.AddClientAsync(client);
         await LoadAsync();
-        await Shell.Current.DisplayAlert("Готово", $"Клиент {client.FullName} создан", "OK");
+        await Shell.Current.DisplayAlertAsync("Готово", $"Клиент {client.FullName} создан", "OK");
     }
 
     private async Task EditClientAsync()
@@ -89,7 +89,7 @@ public class ClientsViewModel : INotifyPropertyChanged
             return;
         }
 
-        await Shell.Current.DisplayAlert("Клиенты", "Открыто изменение клиента", "OK");
+        await Shell.Current.DisplayAlertAsync("Клиенты", "Открыто изменение клиента", "OK");
 
         var client = SelectedClient!;
         var fullName = await Shell.Current.DisplayPromptAsync("Изменить клиента", "ФИО:", initialValue: client.FullName);
@@ -107,7 +107,7 @@ public class ClientsViewModel : INotifyPropertyChanged
 
         if (!decimal.TryParse(priceText, NumberStyles.Number, CultureInfo.CurrentCulture, out var price))
         {
-            await Shell.Current.DisplayAlert("Ошибка", "Цена указана неверно", "OK");
+            await Shell.Current.DisplayAlertAsync("Ошибка", "Цена указана неверно", "OK");
             return;
         }
 
@@ -118,7 +118,7 @@ public class ClientsViewModel : INotifyPropertyChanged
         await DatabaseService.Instance.UpdateClientAsync(client);
         await LoadAsync();
         SelectedClient = Clients.FirstOrDefault(item => item.Id == client.Id);
-        await Shell.Current.DisplayAlert("Готово", "Клиент изменён", "OK");
+        await Shell.Current.DisplayAlertAsync("Готово", "Клиент изменён", "OK");
     }
 
     private async Task DeleteClientAsync()
@@ -129,7 +129,7 @@ public class ClientsViewModel : INotifyPropertyChanged
         }
 
         var client = SelectedClient!;
-        var confirm = await Shell.Current.DisplayAlert(
+        var confirm = await Shell.Current.DisplayAlertAsync(
             "Подтверждение удаления",
             $"Удалить клиента {client.FullName}? Связанные закупки и выплаты также будут удалены.",
             "Удалить",
@@ -137,14 +137,14 @@ public class ClientsViewModel : INotifyPropertyChanged
 
         if (!confirm)
         {
-            await Shell.Current.DisplayAlert("Отменено", "Удаление клиента отменено", "OK");
+            await Shell.Current.DisplayAlertAsync("Отменено", "Удаление клиента отменено", "OK");
             return;
         }
 
         await DatabaseService.Instance.DeleteClientAsync(client.Id);
         SelectedClient = null;
         await LoadAsync();
-        await Shell.Current.DisplayAlert("Готово", "Клиент удалён", "OK");
+        await Shell.Current.DisplayAlertAsync("Готово", "Клиент удалён", "OK");
     }
 
     private async Task CallClientAsync()
@@ -157,11 +157,11 @@ public class ClientsViewModel : INotifyPropertyChanged
         var phone = SelectedClient!.Phone;
         if (string.IsNullOrWhiteSpace(phone))
         {
-            await Shell.Current.DisplayAlert("Телефон", "У выбранного клиента не указан номер телефона", "OK");
+            await Shell.Current.DisplayAlertAsync("Телефон", "У выбранного клиента не указан номер телефона", "OK");
             return;
         }
 
-        var confirm = await Shell.Current.DisplayAlert("Позвонить", $"Набрать {phone}?", "Позвонить", "Отмена");
+        var confirm = await Shell.Current.DisplayAlertAsync("Позвонить", $"Набрать {phone}?", "Позвонить", "Отмена");
         if (!confirm)
         {
             return;
@@ -170,15 +170,15 @@ public class ClientsViewModel : INotifyPropertyChanged
         try
         {
             PhoneDialer.Default.Open(phone);
-            await Shell.Current.DisplayAlert("Телефон", "Открыт набор номера", "OK");
+            await Shell.Current.DisplayAlertAsync("Телефон", "Открыт набор номера", "OK");
         }
         catch (FeatureNotSupportedException)
         {
-            await Shell.Current.DisplayAlert("Телефон", "Звонки не поддерживаются на этом устройстве", "OK");
+            await Shell.Current.DisplayAlertAsync("Телефон", "Звонки не поддерживаются на этом устройстве", "OK");
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Телефон", $"Не удалось открыть набор номера: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlertAsync("Телефон", $"Не удалось открыть набор номера: {ex.Message}", "OK");
         }
     }
 
@@ -189,7 +189,7 @@ public class ClientsViewModel : INotifyPropertyChanged
             return true;
         }
 
-        await Shell.Current.DisplayAlert("Клиенты", $"Выберите клиента для {actionName}", "OK");
+        await Shell.Current.DisplayAlertAsync("Клиенты", $"Выберите клиента для {actionName}", "OK");
         return false;
     }
 

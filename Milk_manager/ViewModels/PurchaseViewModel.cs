@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -19,6 +19,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
     // Списки, которые динамически обновляются на экране телефона
     public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<Client> Clients { get; } = new();
+    public ObservableCollection<PurchaseEntryViewModel> CurrentPurchases { get; } = new();
 
     public Village? SelectedVillage
     {
@@ -48,6 +49,8 @@ public class PurchaseViewModel : INotifyPropertyChanged
 
             _selectedClient = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedClientName));
+            OnPropertyChanged(nameof(SelectedClientPhone));
             if (_selectedClient is not null)
             {
                 // Подставляем персональную цену клиента по умолчанию
@@ -59,14 +62,42 @@ public class PurchaseViewModel : INotifyPropertyChanged
     public string Liters
     {
         get => _liters;
-        set { _liters = value; OnPropertyChanged(); }
+        set
+        {
+            _liters = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CurrentTotal));
+        }
     }
 
     public string Price
     {
         get => _price;
-        set { _price = value; OnPropertyChanged(); }
+        set
+        {
+            _price = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CurrentTotal));
+        }
     }
+
+    public string CurrentTotal
+    {
+        get
+        {
+            if (double.TryParse(Liters, NumberStyles.Float, CultureInfo.CurrentCulture, out var liters) &&
+                decimal.TryParse(Price, NumberStyles.Number, CultureInfo.CurrentCulture, out var price))
+            {
+                return ((decimal)liters * price).ToString("F2", CultureInfo.CurrentCulture);
+            }
+
+            return "0,00";
+        }
+    }
+
+    public string SelectedClientName => SelectedClient?.FullName ?? "Клиент не выбран";
+
+    public string SelectedClientPhone => string.IsNullOrWhiteSpace(SelectedClient?.Phone) ? "Без телефона" : SelectedClient.Phone;
 
     public ICommand SavePurchaseCommand { get; }
     public ICommand AddClientCommand { get; }
@@ -77,6 +108,7 @@ public class PurchaseViewModel : INotifyPropertyChanged
         SavePurchaseCommand = new Command(async () => await SavePurchaseAsync());
         AddClientCommand = new Command(async () => await AddClientAsync());
         _ = LoadVillagesAsync();
+        _ = LoadClientsAsync();
     }
 
     private async Task LoadVillagesAsync()
@@ -92,12 +124,9 @@ public class PurchaseViewModel : INotifyPropertyChanged
     private async Task LoadClientsAsync()
     {
         Clients.Clear();
-        if (SelectedVillage is null)
-        {
-            return;
-        }
-
-        var list = await _dbService.GetClientsByVillageAsync(SelectedVillage.Id);
+        var list = SelectedVillage is null
+            ? await _dbService.GetAllClientsAsync()
+            : await _dbService.GetClientsByVillageAsync(SelectedVillage.Id);
         foreach (var client in list)
         {
             Clients.Add(client);
@@ -140,10 +169,10 @@ public class PurchaseViewModel : INotifyPropertyChanged
 
         await _dbService.AddClientAsync(client);
         await LoadVillagesAsync();
-        SelectedVillage = Villages.FirstOrDefault(item => item.Id == village.Id);
+        SelectedVillage = null;
         await LoadClientsAsync();
         SelectedClient = Clients.FirstOrDefault(item => item.Id == client.Id);
-        await Shell.Current.DisplayAlert("Готово", $"Клиент {client.FullName} добавлен и выбран", "OK");
+        await Shell.Current.DisplayAlertAsync("Готово", $"Клиент {client.FullName} добавлен и выбран", "OK");
     }
 
     private async Task SavePurchaseAsync()
@@ -151,14 +180,14 @@ public class PurchaseViewModel : INotifyPropertyChanged
         // Проверка на пустые поля перед записью
         if (SelectedClient is null || string.IsNullOrWhiteSpace(Liters) || string.IsNullOrWhiteSpace(Price))
         {
-            await Shell.Current.DisplayAlert("Внимание", "Пожалуйста, заполните все поля ввода!", "OK");
+            await Shell.Current.DisplayAlertAsync("Внимание", "Пожалуйста, заполните все поля ввода!", "OK");
             return;
         }
 
         if (!double.TryParse(Liters, NumberStyles.Float, CultureInfo.CurrentCulture, out var litersValue) ||
             !decimal.TryParse(Price, NumberStyles.Number, CultureInfo.CurrentCulture, out var priceValue))
         {
-            await Shell.Current.DisplayAlert("Ошибка", "Неверный формат чисел в литрах или цене!", "OK");
+            await Shell.Current.DisplayAlertAsync("Ошибка", "Неверный формат чисел в литрах или цене!", "OK");
             return;
         }
 
@@ -173,14 +202,37 @@ public class PurchaseViewModel : INotifyPropertyChanged
         // Сохраняем в локальную LiteDB
         await _dbService.AddPurchaseAsync(purchase);
 
-        // Очищаем поле литров для следующего ввода
+        if (SelectedClient.DefaultPrice != priceValue)
+        {
+            var selectedClientId = SelectedClient.Id;
+            SelectedClient.DefaultPrice = priceValue;
+            await _dbService.UpdateClientAsync(SelectedClient);
+            await LoadClientsAsync();
+            SelectedClient = Clients.FirstOrDefault(client => client.Id == selectedClientId);
+        }
+
+        CurrentPurchases.Insert(0, new PurchaseEntryViewModel(
+            SelectedClient.FullName,
+            SelectedClient.Phone,
+            litersValue,
+            priceValue));
+
+        // Очищаем поле литров для следующего ввода, цена выбранного клиента остается для следующей записи
         Liters = string.Empty;
 
-        await Shell.Current.DisplayAlert("Успешно", $"Принято {litersValue} л. от {SelectedClient.FullName}", "OK");
+        await Shell.Current.DisplayAlertAsync("Успешно", $"Принято {litersValue} л. от {SelectedClient.FullName}", "OK");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+
+public record PurchaseEntryViewModel(string ClientName, string Phone, double Liters, decimal PricePerLiter)
+{
+    public decimal TotalSum => (decimal)Liters * PricePerLiter;
+
+    public string PhoneDisplay => string.IsNullOrWhiteSpace(Phone) ? "Без телефона" : Phone;
 }

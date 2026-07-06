@@ -32,17 +32,19 @@
             </Border>
 
             <Label Text="📅 По дням" FontAttributes="Bold" FontSize="18" />
-            <Grid ColumnDefinitions="1.2*,*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
-                <Label Text="Дата" FontAttributes="Bold" />
-                <Label Grid.Column="1" Text="Клиенты л." FontAttributes="Bold" />
-                <Label Grid.Column="2" Text="Клиенты сумма" FontAttributes="Bold" />
-                <Label Grid.Column="3" Text="Заводы л." FontAttributes="Bold" />
-                <Label Grid.Column="4" Text="Заводы сумма" FontAttributes="Bold" />
-            </Grid>
-            <CollectionView x:Name="DailyReportView" HeightRequest="260">
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                <VerticalStackLayout WidthRequest="720" Spacing="0">
+                    <Grid ColumnDefinitions="120,150,150,150,150" Padding="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Label Text="Дата" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="Клиенты л." FontAttributes="Bold" />
+                        <Label Grid.Column="2" Text="Клиенты сумма" FontAttributes="Bold" />
+                        <Label Grid.Column="3" Text="Заводы л." FontAttributes="Bold" />
+                        <Label Grid.Column="4" Text="Заводы сумма" FontAttributes="Bold" />
+                    </Grid>
+                    <CollectionView x:Name="DailyReportView" HeightRequest="260">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid ColumnDefinitions="1.2*,*,*,*,*" Padding="6" ColumnSpacing="6">
+                        <Grid ColumnDefinitions="120,150,150,150,150" Padding="8" ColumnSpacing="6">
                             <Label Text="{Binding Date, StringFormat='{0:d}'}" />
                             <Label Grid.Column="1" Text="{Binding ClientLiters, StringFormat='{0:F1}'}" />
                             <Label Grid.Column="2" Text="{Binding ClientAmount, StringFormat='{0:F2}'}" />
@@ -51,21 +53,25 @@
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
 
             <Label Text="👥 Клиенты" FontAttributes="Bold" FontSize="18" />
-            <Grid ColumnDefinitions="1.2*,1.4*,*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
-                <Label Text="Посёлок" FontAttributes="Bold" />
-                <Label Grid.Column="1" Text="Клиент" FontAttributes="Bold" />
-                <Label Grid.Column="2" Text="Взял л." FontAttributes="Bold" />
-                <Label Grid.Column="3" Text="За сколько" FontAttributes="Bold" />
-                <Label Grid.Column="4" Text="Оплатил" FontAttributes="Bold" />
-                <Label Grid.Column="5" Text="Должен" FontAttributes="Bold" />
-            </Grid>
-            <CollectionView x:Name="ClientReportView" HeightRequest="360">
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                <VerticalStackLayout WidthRequest="840" Spacing="0">
+                    <Grid ColumnDefinitions="130,190,120,140,120,140" Padding="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Label Text="Посёлок" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="Клиент" FontAttributes="Bold" />
+                        <Label Grid.Column="2" Text="Взял л." FontAttributes="Bold" />
+                        <Label Grid.Column="3" Text="За сколько" FontAttributes="Bold" />
+                        <Label Grid.Column="4" Text="Оплатил" FontAttributes="Bold" />
+                        <Label Grid.Column="5" Text="Должен" FontAttributes="Bold" />
+                    </Grid>
+                    <CollectionView x:Name="ClientReportView" HeightRequest="360">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid ColumnDefinitions="1.2*,1.4*,*,*,*,*" Padding="6" ColumnSpacing="6">
+                        <Grid ColumnDefinitions="130,190,120,140,120,140" Padding="8" ColumnSpacing="6">
                             <Label Text="{Binding VillageName}" LineBreakMode="TailTruncation" />
                             <Label Grid.Column="1" Text="{Binding ClientName}" LineBreakMode="TailTruncation" />
                             <Label Grid.Column="2" Text="{Binding LitersTaken, StringFormat='{0:F1}'}" />
@@ -75,19 +81,23 @@
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
 
             <Label Text="🏭 Заводы" FontAttributes="Bold" FontSize="18" />
-            <Grid ColumnDefinitions="2*,*,*,*" Padding="6" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
-                <Label Text="Завод" FontAttributes="Bold" />
-                <Label Grid.Column="1" Text="Сдач" FontAttributes="Bold" />
-                <Label Grid.Column="2" Text="Литры" FontAttributes="Bold" />
-                <Label Grid.Column="3" Text="Сумма" FontAttributes="Bold" />
-            </Grid>
-            <CollectionView x:Name="FactoryReportView" HeightRequest="220">
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                <VerticalStackLayout WidthRequest="620" Spacing="0">
+                    <Grid ColumnDefinitions="260,100,120,140" Padding="8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <Label Text="Завод" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="Сдач" FontAttributes="Bold" />
+                        <Label Grid.Column="2" Text="Литры" FontAttributes="Bold" />
+                        <Label Grid.Column="3" Text="Сумма" FontAttributes="Bold" />
+                    </Grid>
+                    <CollectionView x:Name="FactoryReportView" HeightRequest="220">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid ColumnDefinitions="2*,*,*,*" Padding="6" ColumnSpacing="6">
+                        <Grid ColumnDefinitions="260,100,120,140" Padding="8" ColumnSpacing="6">
                             <Label Text="{Binding FactoryName}" LineBreakMode="TailTruncation" />
                             <Label Grid.Column="1" Text="{Binding DeliveriesCount}" />
                             <Label Grid.Column="2" Text="{Binding LitersDelivered, StringFormat='{0:F1}'}" />
@@ -95,7 +105,9 @@
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
