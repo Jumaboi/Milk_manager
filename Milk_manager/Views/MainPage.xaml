@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Milk_manager.Views.MainPage"
+             Title="Главное меню">
+
+    <!-- Использует глобальные стили и цвета из Resources/Styles -->
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="18">
+
+            <!-- Header -->
+            <Border StrokeShape="RoundRectangle 14"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}"
+                    Padding="16"
+                    StrokeThickness="0"
+                    Margin="0,4,0,0">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🥛 УЧЕТ МОЛОКА"
+                           Style="{StaticResource Headline}"
+                           FontFamily="OpenSansSemibold" />
+                    <Label Text="Локальный режим — без интернета"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Поиск / быстрый доступ -->
+            <SearchBar Placeholder="Поиск клиентов или операций"
+                       Margin="0,0,0,0"
+                       SearchCommand="{Binding SearchCommand}"
+                       FontFamily="OpenSansRegular" />
+
+            <!-- Основные действия — сетка карточек -->
+            <Grid RowSpacing="14" ColumnSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="120" />
+                    <RowDefinition Height="120" />
+                    <RowDefinition Height="80" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Клиенты -->
+                <Border Grid.Row="0" Grid.Column="0" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}">
+                    <Button Text="👥 Клиенты\n(Сдатчики)"
+                            Clicked="OnClientsButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource White}"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            VerticalOptions="Center" />
+                </Border>
+
+                <!-- Заводы -->
+                <Border Grid.Row="0" Grid.Column="1" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray600}}">
+                    <Button Text="🏭 Заводы"
+                            Clicked="OnFactoriesButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            VerticalOptions="Center" />
+                </Border>
+
+                <!-- Прием молока -->
+                <Border Grid.Row="1" Grid.Column="0" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray600}}">
+                    <Button Text="🥛 Прием\nмолока"
+                            Clicked="OnPurchaseButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                            FontAttributes="Bold"
+                            FontSize="16" />
+                </Border>
+
+                <!-- Доставка -->
+                <Border Grid.Row="1" Grid.Column="1" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource Gray500}}">
+                    <Button Text="🚚 Сдача\nна завод"
+                            Clicked="OnDeliveryButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource White}"
+                            FontAttributes="Bold"
+                            FontSize="16" />
+                </Border>
+
+                <!-- Выплаты -->
+                <Border Grid.Row="2" Grid.Column="0" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource Gray900}}">
+                    <Button Text="💰 Выплаты\n(Касса)"
+                            Clicked="OnPaymentsButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource White}"
+                            FontAttributes="Bold"
+                            FontSize="15" />
+                </Border>
+
+                <!-- Списание -->
+                <Border Grid.Row="2" Grid.Column="1" Padding="12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource Gray600}}">
+                    <Button Text="⚠️ Списание\n(Порча)"
+                            Clicked="OnWriteOffButtonClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource White}"
+                            FontAttributes="Bold"
+                            FontSize="15" />
+                </Border>
+
+            </Grid>
+
+            <!-- Отчеты — широкая кнопка -->
+            <Button Text="📊 Отчеты и Excel"
+                    Clicked="OnReportsButtonClicked"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    TextColor="{StaticResource White}"
+                    HeightRequest="52"
+                    FontSize="16" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
