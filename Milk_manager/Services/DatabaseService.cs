@@ -1,4 +1,4 @@
-﻿using LiteDB;
+using LiteDB;
 using Milk_manager.Models;
 
 namespace Milk_manager.Services;
@@ -57,6 +57,11 @@ public class DatabaseService
 
             village = new Village { Name = normalizedName };
             _villages.Insert(village);
+            DeveloperActionLogService.Log(
+                "Village.Create",
+                $"Создан поселок '{village.Name}'.",
+                after: village,
+                rollbackHint: $"Удалить поселок Id={village.Id}, если к нему не привязаны клиенты.");
             return village;
         });
     }
@@ -68,17 +73,44 @@ public class DatabaseService
 
     public Task AddFactoryAsync(Factory factory)
     {
-        return Task.Run(() => _factories.Insert(factory));
+        return Task.Run(() =>
+        {
+            _factories.Insert(factory);
+            DeveloperActionLogService.Log(
+                "Factory.Create",
+                $"Создан завод '{factory.Name}'.",
+                after: factory,
+                rollbackHint: $"Удалить завод Id={factory.Id}.");
+        });
     }
 
     public Task UpdateFactoryAsync(Factory factory)
     {
-        return Task.Run(() => _factories.Update(factory));
+        return Task.Run(() =>
+        {
+            var before = _factories.FindById(factory.Id);
+            _factories.Update(factory);
+            DeveloperActionLogService.Log(
+                "Factory.Update",
+                $"Изменен завод Id={factory.Id}: '{before?.Name}' -> '{factory.Name}'.",
+                before: before,
+                after: factory,
+                rollbackHint: "Вернуть значения завода из before.");
+        });
     }
 
     public Task DeleteFactoryAsync(int factoryId)
     {
-        return Task.Run(() => _factories.Delete(factoryId));
+        return Task.Run(() =>
+        {
+            var before = _factories.FindById(factoryId);
+            _factories.Delete(factoryId);
+            DeveloperActionLogService.Log(
+                "Factory.Delete",
+                $"Удален завод Id={factoryId} ('{before?.Name}').",
+                before: before,
+                rollbackHint: "Создать завод заново по данным before.");
+        });
     }
 
     public Task<List<Client>> GetClientsByVillageAsync(int villageId)
@@ -93,21 +125,47 @@ public class DatabaseService
 
     public Task AddClientAsync(Client client)
     {
-        return Task.Run(() => _clients.Insert(client));
+        return Task.Run(() =>
+        {
+            _clients.Insert(client);
+            DeveloperActionLogService.Log(
+                "Client.Create",
+                $"Создан клиент '{client.FullName}' с ценой {client.DefaultPrice:F2}.",
+                after: client,
+                rollbackHint: $"Удалить клиента Id={client.Id}, если запись была ошибочной.");
+        });
     }
 
     public Task UpdateClientAsync(Client client)
     {
-        return Task.Run(() => _clients.Update(client));
+        return Task.Run(() =>
+        {
+            var before = _clients.FindById(client.Id);
+            _clients.Update(client);
+            DeveloperActionLogService.Log(
+                "Client.Update",
+                $"Изменен клиент Id={client.Id}: '{before?.FullName}' -> '{client.FullName}', цена {before?.DefaultPrice:F2} -> {client.DefaultPrice:F2}.",
+                before: before,
+                after: client,
+                rollbackHint: "Вернуть значения клиента из before.");
+        });
     }
 
     public Task DeleteClientAsync(int clientId)
     {
         return Task.Run(() =>
         {
+            var before = _clients.FindById(clientId);
+            var purchaseCount = _purchases.Count(purchase => purchase.ClientId == clientId);
+            var paymentCount = _payments.Count(payment => payment.ClientId == clientId);
             _clients.Delete(clientId);
             _purchases.DeleteMany(purchase => purchase.ClientId == clientId);
             _payments.DeleteMany(payment => payment.ClientId == clientId);
+            DeveloperActionLogService.Log(
+                "Client.Delete",
+                $"Удален клиент Id={clientId} ('{before?.FullName}'), также удалено приемов: {purchaseCount}, выплат: {paymentCount}.",
+                before: new { Client = before, PurchasesDeleted = purchaseCount, PaymentsDeleted = paymentCount },
+                rollbackHint: "Создать клиента заново по before; связанные приемы/выплаты восстановить из резервной копии LiteDB.");
         });
     }
 
@@ -121,6 +179,12 @@ public class DatabaseService
             }
 
             _purchases.Insert(purchase);
+            var client = _clients.FindById(purchase.ClientId);
+            DeveloperActionLogService.Log(
+                "Purchase.Create",
+                $"Прием молока: клиент '{client?.FullName ?? purchase.ClientId.ToString()}', {purchase.Liters:F1} л × {purchase.PricePerLiter:F2} = {purchase.TotalSum:F2}.",
+                after: new { Purchase = purchase, Client = client },
+                rollbackHint: $"Удалить прием Id={purchase.Id}, если запись ошибочная.");
         });
     }
 
@@ -134,6 +198,12 @@ public class DatabaseService
             }
 
             _payments.Insert(payment);
+            var client = _clients.FindById(payment.ClientId);
+            DeveloperActionLogService.Log(
+                "Payment.Create",
+                $"Выплата клиенту '{client?.FullName ?? payment.ClientId.ToString()}': {payment.Amount:F2}. Комментарий: {payment.Comment ?? "без комментария"}.",
+                after: new { Payment = payment, Client = client },
+                rollbackHint: $"Удалить выплату Id={payment.Id}, если запись ошибочная.");
         });
     }
 
@@ -147,6 +217,11 @@ public class DatabaseService
             }
 
             _deliveries.Insert(delivery);
+            DeveloperActionLogService.Log(
+                "Delivery.Create",
+                $"Сдача на завод '{delivery.FactoryName}': {delivery.Liters:F1} л × {delivery.PricePerLiter:F2} = {delivery.TotalSum:F2}.",
+                after: delivery,
+                rollbackHint: $"Удалить сдачу Id={delivery.Id}, если запись ошибочная.");
         });
     }
 
@@ -160,6 +235,11 @@ public class DatabaseService
             }
 
             _writeOffs.Insert(writeOff);
+            DeveloperActionLogService.Log(
+                "WriteOff.Create",
+                $"Списание молока: {writeOff.Liters:F1} л. Причина: {writeOff.Reason ?? "не указана"}.",
+                after: writeOff,
+                rollbackHint: $"Удалить списание Id={writeOff.Id}, если запись ошибочная.");
         });
     }
 

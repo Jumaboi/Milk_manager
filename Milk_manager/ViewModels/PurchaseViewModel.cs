@@ -202,6 +202,15 @@ public class PurchaseViewModel : INotifyPropertyChanged
         // Сохраняем в локальную LiteDB
         await _dbService.AddPurchaseAsync(purchase);
 
+        if (SelectedClient.DefaultPrice != priceValue)
+        {
+            var selectedClientId = SelectedClient.Id;
+            SelectedClient.DefaultPrice = priceValue;
+            await _dbService.UpdateClientAsync(SelectedClient);
+            await LoadClientsAsync();
+            SelectedClient = Clients.FirstOrDefault(client => client.Id == selectedClientId);
+        }
+
         CurrentPurchases.Insert(0, new PurchaseEntryViewModel(
             SelectedClient.FullName,
             SelectedClient.Phone,

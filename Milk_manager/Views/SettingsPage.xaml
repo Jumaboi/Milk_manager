@@ -11,5 +11,12 @@
         </Border>
 
         <Label Text="Опции приложения и тема" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray200}}" />
+        <Border Padding="10" StrokeShape="RoundRectangle 10" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Лог разработчика" FontAttributes="Bold" />
+                <Label x:Name="DeveloperLogPathLabel" FontSize="12" LineBreakMode="CharacterWrap" />
+                <Button Text="Показать путь к логу" Clicked="OnShowDeveloperLogPathClicked" />
+            </VerticalStackLayout>
+        </Border>
     </VerticalStackLayout>
 </ContentPage>

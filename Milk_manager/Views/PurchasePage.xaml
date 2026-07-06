@@ -59,11 +59,12 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,0,0,6" Padding="8" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8">
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClientName}" FontAttributes="Bold" />
                                 <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalSum, StringFormat='{0:F2}'}" FontAttributes="Bold" />
                                 <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PhoneDisplay, StringFormat='Тел: {0}'}" FontSize="12" />
                                 <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Liters, StringFormat='Литры: {0:F1}'}" FontSize="12" />
+                                <Label Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding PricePerLiter, StringFormat='Цена за литр: {0:F2}'}" FontSize="12" />
                             </Grid>
                         </Border>
                     </DataTemplate>
